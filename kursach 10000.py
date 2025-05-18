@@ -21,7 +21,7 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, classification_re
 from sklearn.model_selection import GridSearchCV
 from tensorflow.keras.datasets import fashion_mnist
 
-# 
+# В данном коде я наставил большущее количество принтов, дабы отслеживать какая сейчас часть делается, ведь для выполнения кода этого, в прошлый раз, мне понадобилось 4 часа
 (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
 class_names = ["Футболка", "Брюки", "Пуловер", "Платье", "Пальто",
                "Сандаль", "Рубашка", "Кроссовок", "Сумка", "Ботинок"]
