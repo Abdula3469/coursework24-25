@@ -190,22 +190,36 @@ for ensemble in [voting, stacking]:
 print("\n=== 9. Улучшение моделей ===")
 
 param_grid = {
-    'n_estimators': [50, 100, 200],
-    'max_depth': [None, 10, 20],
-    'min_samples_split': [2, 5]
+    'voting': ['soft', 'hard'],
+    'weights': [  
+        [1, 1, 1], 
+        [2, 1, 1],  
+        [1, 2, 1],  
+        [1, 1, 2]  
+    ]
 }
 
-rf = RandomForestClassifier(random_state=42)
-grid_search = GridSearchCV(rf, param_grid, cv=3, n_jobs=-1, verbose=1)
-grid_search.fit(X_train[:5000], y_train[:5000])  # Уменьшаем выборку для скорости
+voting = VotingClassifier(
+    estimators=[(name, results[name]['model']) for name in ["Random Forest", "Gradient Boosting", "SVM"]],
+    n_jobs=-1
+)
 
-best_rf = grid_search.best_estimator_
-y_pred = best_rf.predict(X_test)
+grid_search = GridSearchCV(voting, param_grid, cv=3, n_jobs=-1, verbose=1)
+grid_search.fit(X_train[:5000], y_train[:5000])  
+
+best_voting = grid_search.best_estimator_
+y_pred = best_voting.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
 
 print(f"\nЛучшие параметры: {grid_search.best_params_}")
-print(f"Точность улучшенной модели: {acc:.3f} (было {results['Random Forest']['accuracy']:.3f})")
+print(f"Точность улучшенного VotingClassifier: {acc:.3f} (было {results['VotingClassifier']['accuracy']:.3f})")
 
+results["VotingClassifier (optimized)"] = {
+    'model': best_voting,
+    'accuracy': acc,
+    'f1_score': f1_score(y_test, y_pred, average='weighted'),
+    'train_time': grid_search.refit_time_
+}
 
 print("\n=== 10. Визуализация результатов ===")
 
